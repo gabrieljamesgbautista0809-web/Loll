@@ -1,7 +1,7 @@
 -- KING Banner
 -- Created by ChatGPT
 
-local SERVER = "217.160.125.127:15489" -- CHANGE IP HERE
+local SERVER = "93.115.101.143:15489" -- CHANGE IP HERE
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
